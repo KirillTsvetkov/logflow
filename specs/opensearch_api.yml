@@ -1,0 +1,62 @@
+openapi: 3.0.3
+info:
+  title: OpenSearch API
+  version: 2.0.0
+servers:
+  - url: http://localhost:9200
+paths:
+  /{index}/_search:
+    post:
+      summary: Поиск логов по trace_id
+      parameters:
+        - name: index
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                query:
+                  type: object
+                  properties:
+                    term:
+                      type: object
+                      properties:
+                        trace_id.keyword:
+                          type: string
+      responses:
+        '200':
+          description: Успешный поиск
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SearchResponse"
+components:
+  schemas:
+    SearchResponse:
+      type: object
+      properties:
+        hits:
+          type: object
+          properties:
+            hits:
+              type: array
+              items:
+                $ref: "#/components/schemas/LogEntry"
+    LogEntry:
+      type: object
+      properties:
+        _source:
+          type: object
+          properties:
+            timestamp:
+              type: string
+              format: date-time
+            message:
+              type: string
+            trace_id:
+              type: string
